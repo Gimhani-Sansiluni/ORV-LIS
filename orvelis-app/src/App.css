@@ -1367,3 +1367,10 @@ footer small {
     font-size: 8px;
   }
 }
+
+/* MOBILE HERO CONTENT POSITION */
+@media (max-width: 650px) {
+  .hero-content {
+    top: -30px;
+  }
+}
