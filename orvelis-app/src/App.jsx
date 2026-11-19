@@ -155,10 +155,10 @@ function App() {
   const [orderSubmitted, setOrderSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [whatsappLink, setWhatsappLink] = useState("");
 
   // FETCH PRODUCTS FROM SUPABASE
   useEffect(() => {
-    // The admin page loads its own products.
     if (window.location.pathname === "/admin") {
       return;
     }
@@ -174,9 +174,11 @@ function App() {
 
       if (error) {
         console.error("Product loading error:", error);
+
         setProductsError(
           "We couldn't load our fragrances. Please refresh the page."
         );
+
         setProductsLoading(false);
         return;
       }
@@ -288,7 +290,9 @@ function App() {
 
       {/* NAVIGATION */}
       <header className="navbar">
-        <a className="brand" href="#home">ORVÈLIS</a>
+        <a className="brand" href="#home">
+          ORVÈLIS
+        </a>
 
         <nav className="nav-links">
           <a href="#cart">CART ({cartCount})</a>
@@ -305,7 +309,11 @@ function App() {
       </header>
 
       {cartMessage && (
-        <p className="cart-message" role="status" aria-live="polite">
+        <p
+          className="cart-message"
+          role="status"
+          aria-live="polite"
+        >
           {cartMessage}
         </p>
       )}
@@ -315,7 +323,9 @@ function App() {
         <div className="hero-overlay"></div>
 
         <div className="hero-content">
-          <p className="eyebrow">THE ART OF FINE FRAGRANCE</p>
+          <p className="eyebrow">
+            THE ART OF FINE FRAGRANCE
+          </p>
 
           <h1>
             <span>EXPERIENCE</span>
@@ -341,7 +351,9 @@ function App() {
 
       {/* INTRO */}
       <section className="intro">
-        <p className="eyebrow">THE ORVÈLIS EXPERIENCE</p>
+        <p className="eyebrow">
+          THE ORVÈLIS EXPERIENCE
+        </p>
 
         <h2>
           Luxury is not just what you wear.
@@ -369,7 +381,10 @@ function App() {
 
         <div className="collection-grid">
           {collections.map((item) => (
-            <article className="collection-card" key={item.name}>
+            <article
+              className="collection-card"
+              key={item.name}
+            >
               <div className="collection-image">
                 <img
                   src={item.image}
@@ -393,7 +408,9 @@ function App() {
       <section className="products" id="products">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">CURATED FOR YOUR SENSES</p>
+            <p className="eyebrow">
+              CURATED FOR YOUR SENSES
+            </p>
             <h2>THE FRAGRANCE EDIT</h2>
           </div>
 
@@ -410,7 +427,8 @@ function App() {
           </div>
         ) : products.length === 0 ? (
           <div className="admin-empty">
-            Our fragrance collection is being updated. Please check back soon.
+            Our fragrance collection is being updated.
+            Please check back soon.
           </div>
         ) : (
           <div className="product-grid">
@@ -429,8 +447,12 @@ function App() {
       <section className="cart-section" id="cart">
         <div className="section-heading">
           <p className="eyebrow">YOUR SELECTION</p>
-          <h2>SHOPPING <span>BAG.</span></h2>
-          <p>Review your chosen fragrances before checkout.</p>
+          <h2>
+            SHOPPING <span>BAG.</span>
+          </h2>
+          <p>
+            Review your chosen fragrances before checkout.
+          </p>
         </div>
 
         {cart.length === 0 ? (
@@ -464,14 +486,19 @@ function App() {
                       <h3>{item.name}</h3>
 
                       <p>
-                        {item.size} · Rs. {item.price.toLocaleString("en-LK")}
+                        {item.size} · Rs.{" "}
+                        {item.price.toLocaleString("en-LK")}
                       </p>
 
                       <div className="cart-quantity">
                         <button
                           type="button"
                           onClick={() =>
-                            updateQuantity(item.name, item.size, -1)
+                            updateQuantity(
+                              item.name,
+                              item.size,
+                              -1
+                            )
                           }
                         >
                           −
@@ -482,7 +509,11 @@ function App() {
                         <button
                           type="button"
                           onClick={() =>
-                            updateQuantity(item.name, item.size, 1)
+                            updateQuantity(
+                              item.name,
+                              item.size,
+                              1
+                            )
                           }
                         >
                           +
@@ -492,14 +523,20 @@ function App() {
 
                     <div className="cart-item-end">
                       <strong>
-                        Rs. {(item.price * item.quantity).toLocaleString("en-LK")}
+                        Rs.{" "}
+                        {(
+                          item.price * item.quantity
+                        ).toLocaleString("en-LK")}
                       </strong>
 
                       <button
                         type="button"
                         className="remove-cart-item"
                         onClick={() =>
-                          removeFromCart(item.name, item.size)
+                          removeFromCart(
+                            item.name,
+                            item.size
+                          )
                         }
                       >
                         REMOVE
@@ -515,26 +552,34 @@ function App() {
 
               <div>
                 <span>Subtotal</span>
-                <span>Rs. {subtotal.toLocaleString("en-LK")}</span>
+                <span>
+                  Rs. {subtotal.toLocaleString("en-LK")}
+                </span>
               </div>
 
               <div>
                 <span>Delivery</span>
-                <span>Rs. {deliveryCharge.toLocaleString("en-LK")}</span>
+                <span>
+                  Rs. {deliveryCharge.toLocaleString("en-LK")}
+                </span>
               </div>
 
               <div className="cart-total">
                 <strong>TOTAL</strong>
-                <strong>Rs. {grandTotal.toLocaleString("en-LK")}</strong>
+                <strong>
+                  Rs. {grandTotal.toLocaleString("en-LK")}
+                </strong>
               </div>
 
               <button
                 type="button"
                 className="checkout-button"
                 onClick={() => {
-                  document.getElementById("checkout").scrollIntoView({
-                    behavior: "smooth",
-                  });
+                  document
+                    .getElementById("checkout")
+                    .scrollIntoView({
+                      behavior: "smooth",
+                    });
                 }}
               >
                 PROCEED TO CHECKOUT
@@ -548,14 +593,20 @@ function App() {
       <section className="checkout-section" id="checkout">
         <div className="section-heading">
           <p className="eyebrow">ALMOST YOURS</p>
-          <h2>SECURE <span>YOUR ORDER.</span></h2>
-          <p>Enter your details to place your ORVÈLIS order.</p>
+          <h2>
+            SECURE <span>YOUR ORDER.</span>
+          </h2>
+          <p>
+            Enter your details to place your ORVÈLIS order.
+          </p>
         </div>
 
         <div className="checkout-container">
           <form
             className="checkout-form"
-            style={{ display: orderSubmitted ? "none" : "block" }}
+            style={{
+              display: orderSubmitted ? "none" : "block",
+            }}
             onSubmit={async (event) => {
               event.preventDefault();
 
@@ -567,12 +618,14 @@ function App() {
               setIsSubmitting(true);
               setSubmitError("");
 
-              // Open WhatsApp tab immediately to avoid popup blocking
-              const whatsappWindow = window.open("", "_blank");
-
               try {
-                const formData = new FormData(event.currentTarget);
-                const customer = Object.fromEntries(formData.entries());
+                const formData = new FormData(
+                  event.currentTarget
+                );
+
+                const customer = Object.fromEntries(
+                  formData.entries()
+                );
 
                 const orderItems = cart.map((item) => ({
                   name: item.name,
@@ -588,14 +641,16 @@ function App() {
                     {
                       customer_name: customer.fullName,
                       customer_phone: customer.phone,
-                      customer_email: customer.email || null,
+                      customer_email:
+                        customer.email || null,
                       delivery_address: customer.address,
                       district: customer.district,
                       order_items: orderItems,
                       subtotal: subtotal,
                       delivery_charge: deliveryCharge,
                       total: grandTotal,
-                      special_notes: customer.notes || null,
+                      special_notes:
+                        customer.notes || null,
                     },
                   ]);
 
@@ -607,7 +662,11 @@ function App() {
                 const orderMessage = orderItems
                   .map(
                     (item) =>
-                      `${item.name} - ${item.size} x ${item.quantity} = Rs. ${(item.price * item.quantity).toLocaleString("en-LK")}`
+                      `${item.name} - ${item.size} x ${
+                        item.quantity
+                      } = Rs. ${(
+                        item.price * item.quantity
+                      ).toLocaleString("en-LK")}`
                   )
                   .join("\n");
 
@@ -632,22 +691,21 @@ Special Notes: ${customer.notes || "None"}
 `;
 
                 const whatsappURL =
-                  `https://wa.me/94761519446?text=${encodeURIComponent(message)}`;
+                  `https://wa.me/94761519446?text=${encodeURIComponent(
+                    message
+                  )}`;
 
-                if (whatsappWindow) {
-                  whatsappWindow.location.href = whatsappURL;
-                } else {
-                  window.location.href = whatsappURL;
-                }
+                // SAVE WHATSAPP LINK
+                setWhatsappLink(whatsappURL);
 
+                // SHOW CONFIRMATION
                 setOrderSubmitted(true);
 
               } catch (error) {
-                console.error("Order submission error:", error);
-
-                if (whatsappWindow) {
-                  whatsappWindow.close();
-                }
+                console.error(
+                  "Order submission error:",
+                  error
+                );
 
                 setSubmitError(
                   "We couldn't save your order. Please try again or contact us through WhatsApp."
@@ -661,7 +719,9 @@ Special Notes: ${customer.notes || "None"}
             <h3>DELIVERY INFORMATION</h3>
 
             <div className="form-group">
-              <label htmlFor="customerName">FULL NAME</label>
+              <label htmlFor="customerName">
+                FULL NAME
+              </label>
 
               <input
                 type="text"
@@ -686,7 +746,9 @@ Special Notes: ${customer.notes || "None"}
             </div>
 
             <div className="form-group">
-              <label htmlFor="customerPhone">PHONE NUMBER</label>
+              <label htmlFor="customerPhone">
+                PHONE NUMBER
+              </label>
 
               <input
                 type="tel"
@@ -699,7 +761,9 @@ Special Notes: ${customer.notes || "None"}
             </div>
 
             <div className="form-group">
-              <label htmlFor="customerAddress">DELIVERY ADDRESS</label>
+              <label htmlFor="customerAddress">
+                DELIVERY ADDRESS
+              </label>
 
               <textarea
                 id="customerAddress"
@@ -711,7 +775,9 @@ Special Notes: ${customer.notes || "None"}
             </div>
 
             <div className="form-group">
-              <label htmlFor="customerDistrict">DISTRICT</label>
+              <label htmlFor="customerDistrict">
+                DISTRICT
+              </label>
 
               <input
                 type="text"
@@ -736,7 +802,10 @@ Special Notes: ${customer.notes || "None"}
             </div>
 
             {submitError && (
-              <p className="checkout-error" role="alert">
+              <p
+                className="checkout-error"
+                role="alert"
+              >
                 {submitError}
               </p>
             )}
@@ -760,39 +829,53 @@ Special Notes: ${customer.notes || "None"}
               </p>
 
               <h3>
-                YOUR ORDER REQUEST <span>HAS BEEN RECEIVED.</span>
+                YOUR ORDER REQUEST{" "}
+                <span>HAS BEEN RECEIVED.</span>
               </h3>
 
               <p className="confirmation-success">
-                WhatsApp Order Submitted Successfully!
+                Your Order Has Been Saved Successfully!
               </p>
 
               <p>
-                Thank you for shopping with ORVÈLIS. We have received
-                your order request through WhatsApp.
+                Thank you for shopping with ORVÈLIS. Your
+                order details have been saved successfully.
+                Please continue to WhatsApp to send your
+                order request to our team.
               </p>
 
               <h4>WHAT HAPPENS NEXT?</h4>
 
               <p>
-                1. Our team will review your order and contact you
-                shortly with the next steps.
+                1. Our team will review your order and
+                contact you shortly with the next steps.
               </p>
 
               <p>
-                2. We will contact you through WhatsApp with our
-                bank transfer details.
+                2. We will contact you through WhatsApp
+                with our bank transfer details.
               </p>
 
               <p>
-                3. Once your payment is completed and verified,
-                we will confirm your order and arrange delivery.
+                3. Once your payment is completed and
+                verified, we will confirm your order and
+                arrange delivery.
               </p>
 
               <p className="confirmation-note">
-                Your order will be confirmed after payment verification.
-                Thank you for trusting ORVÈLIS.
+                Your order will be confirmed after payment
+                verification. Thank you for trusting
+                ORVÈLIS.
               </p>
+
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="checkout-button"
+              >
+                OPEN WHATSAPP
+              </a>
             </div>
           )}
         </div>
@@ -808,15 +891,20 @@ Special Notes: ${customer.notes || "None"}
         </div>
 
         <div className="story-content">
-          <p className="eyebrow">A WORLD OF FRAGRANCE</p>
+          <p className="eyebrow">
+            A WORLD OF FRAGRANCE
+          </p>
 
-          <h2>DISCOVER THE BEAUTY OF EVERY DROP.</h2>
+          <h2>
+            DISCOVER THE BEAUTY OF EVERY DROP.
+          </h2>
 
           <p>
-            At ORVÈLIS, we believe everyone deserves to experience
-            extraordinary fragrances. Our decants let you explore
-            authentic luxury scents in convenient sizes before
-            choosing your favourite.
+            At ORVÈLIS, we believe everyone deserves to
+            experience extraordinary fragrances. Our
+            decants let you explore authentic luxury scents
+            in convenient sizes before choosing your
+            favourite.
           </p>
 
           <a href="#products" className="text-link">
@@ -827,7 +915,9 @@ Special Notes: ${customer.notes || "None"}
 
       {/* FOOTER */}
       <footer id="contact">
-        <a className="footer-brand" href="#home">ORVÈLIS</a>
+        <a className="footer-brand" href="#home">
+          ORVÈLIS
+        </a>
 
         <p>THE ART OF FINE FRAGRANCE.</p>
 
@@ -840,7 +930,9 @@ Special Notes: ${customer.notes || "None"}
 
         <div className="footer-line"></div>
 
-        <small>© 2026 ORVÈLIS. ALL RIGHTS RESERVED.</small>
+        <small>
+          © 2026 ORVÈLIS. ALL RIGHTS RESERVED.
+        </small>
       </footer>
 
     </div>
@@ -848,3 +940,5 @@ Special Notes: ${customer.notes || "None"}
 }
 
 export default App;
+
+
