@@ -152,10 +152,17 @@ function App() {
   const [cartMessage, setCartMessage] = useState("");
 
   // CHECKOUT STATES
-  const [orderSubmitted, setOrderSubmitted] = useState(false);
+  // Restore confirmation if the original page reloads.
+  const [orderSubmitted, setOrderSubmitted] = useState(
+    () => sessionStorage.getItem("orvelisOrderSubmitted") === "true"
+  );
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [whatsappLink, setWhatsappLink] = useState("");
+
+  const [whatsappLink, setWhatsappLink] = useState(
+    () => sessionStorage.getItem("orvelisWhatsappLink") || ""
+  );
 
   // FETCH PRODUCTS FROM SUPABASE
   useEffect(() => {
@@ -284,6 +291,122 @@ function App() {
   if (window.location.pathname === "/admin") {
     return <Admin />;
   }
+
+  // CHECKOUT SUBMISSION
+  const handleCheckoutSubmit = async (event) => {
+    event.preventDefault();
+
+    if (cart.length === 0) {
+      alert("Your shopping bag is empty.");
+      return;
+    }
+
+    // Open a separate tab during the original user click.
+    // This helps prevent popup blockers after the Supabase request.
+    const whatsappWindow = window.open("about:blank", "_blank");
+
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    try {
+      const formData = new FormData(event.currentTarget);
+
+      const customer = Object.fromEntries(formData.entries());
+
+      const orderItems = cart.map((item) => ({
+        name: item.name,
+        size: item.size,
+        price: item.price,
+        quantity: item.quantity,
+      }));
+
+      // SAVE ORDER TO SUPABASE
+      const { error } = await supabase
+        .from("orders")
+        .insert([
+          {
+            customer_name: customer.fullName,
+            customer_phone: customer.phone,
+            customer_email: customer.email || null,
+            delivery_address: customer.address,
+            district: customer.district,
+            order_items: orderItems,
+            subtotal: subtotal,
+            delivery_charge: deliveryCharge,
+            total: grandTotal,
+            special_notes: customer.notes || null,
+          },
+        ]);
+
+      if (error) {
+        throw error;
+      }
+
+      // PREPARE WHATSAPP MESSAGE
+      const orderMessage = orderItems
+        .map(
+          (item) =>
+            `${item.name} - ${item.size} x ${item.quantity} = Rs. ${(
+              item.price * item.quantity
+            ).toLocaleString("en-LK")}`
+        )
+        .join("\n");
+
+      const message = `
+NEW ORVÈLIS ORDER
+
+CUSTOMER DETAILS
+Name: ${customer.fullName}
+Phone: ${customer.phone}
+Email: ${customer.email || "Not provided"}
+Address: ${customer.address}
+District: ${customer.district}
+
+ORDER DETAILS
+${orderMessage}
+
+Subtotal: Rs. ${subtotal.toLocaleString("en-LK")}
+Delivery: Rs. ${deliveryCharge.toLocaleString("en-LK")}
+TOTAL: Rs. ${grandTotal.toLocaleString("en-LK")}
+
+Special Notes: ${customer.notes || "None"}
+`;
+
+      const whatsappURL =
+        `https://wa.me/94761519446?text=${encodeURIComponent(message)}`;
+
+      // SAVE CONFIRMATION FOR THE ORIGINAL PAGE
+      sessionStorage.setItem("orvelisOrderSubmitted", "true");
+      sessionStorage.setItem("orvelisWhatsappLink", whatsappURL);
+
+      setWhatsappLink(whatsappURL);
+      setOrderSubmitted(true);
+
+      // OPEN WHATSAPP IN THE SEPARATE TAB
+      if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.location.href = whatsappURL;
+      } else {
+        // If the browser blocks the popup, the confirmation
+        // page still provides the WhatsApp link as a fallback.
+        console.warn("The browser blocked the WhatsApp popup.");
+      }
+
+    } catch (error) {
+      console.error("Order submission error:", error);
+
+      // Close the temporary tab if saving failed.
+      if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.close();
+      }
+
+      setSubmitError(
+        "We couldn't save your order. Please try again or contact us through WhatsApp."
+      );
+
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="website">
@@ -607,114 +730,7 @@ function App() {
             style={{
               display: orderSubmitted ? "none" : "block",
             }}
-            onSubmit={async (event) => {
-              event.preventDefault();
-
-              if (cart.length === 0) {
-                alert("Your shopping bag is empty.");
-                return;
-              }
-
-              setIsSubmitting(true);
-              setSubmitError("");
-
-              try {
-                const formData = new FormData(
-                  event.currentTarget
-                );
-
-                const customer = Object.fromEntries(
-                  formData.entries()
-                );
-
-                const orderItems = cart.map((item) => ({
-                  name: item.name,
-                  size: item.size,
-                  price: item.price,
-                  quantity: item.quantity,
-                }));
-
-                // SAVE ORDER TO SUPABASE
-                const { error } = await supabase
-                  .from("orders")
-                  .insert([
-                    {
-                      customer_name: customer.fullName,
-                      customer_phone: customer.phone,
-                      customer_email:
-                        customer.email || null,
-                      delivery_address: customer.address,
-                      district: customer.district,
-                      order_items: orderItems,
-                      subtotal: subtotal,
-                      delivery_charge: deliveryCharge,
-                      total: grandTotal,
-                      special_notes:
-                        customer.notes || null,
-                    },
-                  ]);
-
-                if (error) {
-                  throw error;
-                }
-
-                // PREPARE WHATSAPP MESSAGE
-                const orderMessage = orderItems
-                  .map(
-                    (item) =>
-                      `${item.name} - ${item.size} x ${
-                        item.quantity
-                      } = Rs. ${(
-                        item.price * item.quantity
-                      ).toLocaleString("en-LK")}`
-                  )
-                  .join("\n");
-
-                const message = `
-NEW ORVÈLIS ORDER
-
-CUSTOMER DETAILS
-Name: ${customer.fullName}
-Phone: ${customer.phone}
-Email: ${customer.email || "Not provided"}
-Address: ${customer.address}
-District: ${customer.district}
-
-ORDER DETAILS
-${orderMessage}
-
-Subtotal: Rs. ${subtotal.toLocaleString("en-LK")}
-Delivery: Rs. ${deliveryCharge.toLocaleString("en-LK")}
-TOTAL: Rs. ${grandTotal.toLocaleString("en-LK")}
-
-Special Notes: ${customer.notes || "None"}
-`;
-
-                const whatsappURL =
-                  `https://wa.me/94761519446?text=${encodeURIComponent(
-                    message
-                  )}`;
-
-                // SAVE WHATSAPP LINK
-                setWhatsappLink(whatsappURL);
-
-                // SHOW CONFIRMATION
-                setOrderSubmitted(true);
-
-              } catch (error) {
-                console.error(
-                  "Order submission error:",
-                  error
-                );
-
-                setSubmitError(
-                  "We couldn't save your order. Please try again or contact us through WhatsApp."
-                );
-
-              } finally {
-                setIsSubmitting(false);
-              }
-            }}
+            onSubmit={handleCheckoutSubmit}
           >
             <h3>DELIVERY INFORMATION</h3>
 
@@ -817,7 +833,7 @@ Special Notes: ${customer.notes || "None"}
             >
               {isSubmitting
                 ? "SAVING YOUR ORDER..."
-                : "SEND ORDER VIA WHATSAPP"}
+                : "SUBMIT ORDER"}
             </button>
           </form>
 
@@ -834,21 +850,22 @@ Special Notes: ${customer.notes || "None"}
               </h3>
 
               <p className="confirmation-success">
-                Your Order Has Been Saved Successfully!
+                YOUR ORDER HAS BEEN SUCCESSFULLY SAVED!
               </p>
 
               <p>
-                Thank you for shopping with ORVÈLIS. Your
-                order details have been saved successfully.
-                Please continue to WhatsApp to send your
-                order request to our team.
+                Thank you for shopping with ORVÈLIS.
+                Your order details have been saved.
+                Please send your prepared order message
+                through WhatsApp if it has not already
+                been sent.
               </p>
 
               <h4>WHAT HAPPENS NEXT?</h4>
 
               <p>
                 1. Our team will review your order and
-                contact you shortly with the next steps.
+                contact you shortly.
               </p>
 
               <p>
@@ -874,7 +891,7 @@ Special Notes: ${customer.notes || "None"}
                 rel="noopener noreferrer"
                 className="checkout-button"
               >
-                OPEN WHATSAPP
+                OPEN WHATSAPP AGAIN
               </a>
             </div>
           )}
@@ -940,5 +957,3 @@ Special Notes: ${customer.notes || "None"}
 }
 
 export default App;
-
-
